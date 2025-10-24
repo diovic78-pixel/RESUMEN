@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Trazabilidad Ojiva</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --navy: #1a2341;
+      --deep-navy: #121225;
+      --gold: #bda25f;
+      --ojiva-brown: #46381a;
+      --bg: #f7fafc;
+      --card-shadow: 0 3px 20px 0 rgba(34,42,68,0.11);
+      --white: #fff;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--navy);
+    }
+    .navbar {
+      background: var(--navy);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.2em 2em 0.2em 1em;
+      border-bottom: 3px solid var(--gold);
+      box-shadow: 0 7px 16px -9px var(--deep-navy);
+    }
+    .navbar img {
+      height: 48px;
+      background: var(--white);
+      border-radius: 9px;
+      padding: 2px 4px;
+      margin-right: 10px;
+    }
+    .navbar-title {
+      font-size: 1.45em;
+      font-weight: 700;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .user-badge {
+      background: var(--gold);
+      color: var(--ojiva-brown);
+      padding: 5px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    main {
+      max-width: 1320px;
+      margin: 1.2em auto 0 auto;
+      padding: 1em;
+      display: flex;
+      flex-direction: column;
+      gap: 1.4em;
+    }
+    .cards-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.3em;
+    }
+    .card, .dashboard-card {
+      background: var(--white);
+      border-radius: 18px;
+      box-shadow: var(--card-shadow);
+      padding: 1.2em 1em 1.1em 1em;
+      flex: 1 1 330px;
+      min-width: 310px;
+      margin: 0 0 0.2em 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75em;
+    }
+    .card-title {
+      font-size: 1.13em;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 0.44em;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .divider {
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold) 30%, var(--ojiva-brown) 100%);
+      border-radius: 6px;
+      margin: 0.4em 0 0.9em 0;
+    }
+    label {
+      font-weight: 500;
+      font-size: 1em;
+    }
+    input, select, button, textarea {
+      width: 100%;
+      margin-top: 3px;
+      margin-bottom: 10px;
+      font-size: 0.97em;
+      border-radius: 7px;
+      border: 1.5px solid #b0b7d0;
+      padding: 7px 8px;
+      transition: border .15s;
+      background: #fcfcfc;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border: 1.8px solid var(--gold);
+      background: #fff;
+    }
+    button, .btn {
+      background: var(--gold);
+      color: var(--ojiva-brown);
+      font-weight: 600;
+      padding: 9px 22px;
+      border: none;
+      border-radius: 18px;
+      cursor: pointer;
+      box-shadow: 0 2px 12px -6px var(--ojiva-brown);
+      margin-top: 5px;
+      transition: background .17s;
+    }
+    button:hover, .btn:hover {
+      background: #f2ce86;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5em;
+      font-size: 0.98em;
+    }
+    th, td {
+      padding: 0.52em 0.4em;
+      text-align: left;
+      border-bottom: 1px solid #ece9e3;
+    }
+    th {
+      background: #f2f0ea;
+      color: var(--ojiva-brown);
+      border-bottom: 2.5px solid var(--gold);
+    }
+    .summary, .summary-row {
+      background: #fbf7ef;
+      border-radius: 10px;
+      padding: 0.7em 0.9em 0.65em 1em;
+      font-weight: 500;
+      color: var(--ojiva-brown);
+      margin-top: 0.31em;
+      margin-bottom: 0.22em;
+      line-height: 1.58em;
+      box-shadow: 0 1px 5px -3px var(--ojiva-brown);
+    }
+    .status-badge {
+      padding: 0.17em 0.83em;
+      border-radius: 7px;
+      font-weight: 600;
+      font-size: 0.99em;
+    }
+    .cargado { background: #1a8e60; color: #fff; }
+    .no-cargado { background: #C0553B; color: #fff; }
+    .dashboard-row {
+      margin-top: 0.8em;
+      display: flex;
+      gap: 1.1em;
+      flex-wrap: wrap;
+    }
+    .dashboard-card {
+      min-width: 210px;
+      margin: 0 0 0.45em 0;
+      background: #f8f9fc;
+      color: var(--navy);
+      padding: 0.6em 1em 0.4em 1em;
+      border-left: 8px solid var(--gold);
+      font-size: 1.11em;
+      font-weight: 500;
+      box-shadow: var(--card-shadow);
+      border-radius: 13px;
+    }
+    .dashboard-title {
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.5em;
+      font-size: 1.06em;
+    }
+    .dashboard-graph-container {
+      background: #f8f8fb;
+      border-radius: 14px;
+      margin-top: 1.2em;
+      padding: 1em 1em 1em 1.2em;
+      box-shadow: 0 2px 18px -14px #1a234166;
+    }
+    .flex-row { display: flex; gap: 1.1em; flex-wrap: wrap;}
+    .flex-both { flex:1 1 170px; }
+    @media (max-width: 950px) {
+      main { padding: 1em 0.2em;}
+      .cards-row, .dashboard-row {flex-direction: column;}
+      .card, .dashboard-card {min-width: 70vw; max-width: 100vw;}
+    }
+    @media (max-width: 600px) {
+      .navbar img {height: 33px;}
+      .navbar-title {font-size: 1.1em;}
+      .card, .dashboard-card {padding: 0.76em 0.7em;}
+    }
+    /* Place any further custom responsive/mobile tweaks here */
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <span class="navbar-title">
+      <img src="image.jpg" alt="Logo Ojiva" />
+      Panel de Trazabilidad Ojiva Sanut
+    </span>
+    <span class="user-badge">Dashboard Nave</span>
+  </nav>
+  <main>
+    <div class="cards-row">
+      <!-- Información General Buque -->
+      <section class="card">
+        <div class="card-title">Información General</div>
+        <div class="divider"></div>
+        <label>Nombre buque</label>
+        <input id="buque-nombre">
+        <label>Matrícula</label>
+        <input id="buque-matricula">
+        <label>Puerto Origen</label>
+        <input id="buque-origen">
+        <label>Puerto Destino</label>
+        <input id="buque-destino">
+        <label>ETA</label>
+        <input type="datetime-local" id="buque-eta">
+        <label>Fecha NOR</label>
+        <input type="datetime-local" id="buque-nor">
+        <label>Rata Contratada TM/día</label>
+        <input type="number" id="buque-rata" min="1">
+        <label>Condición Contrato</label>
+        <select id="buque-condicion">
+          <option value="SHINC">SHINC</option>
+          <option value="SHEX">SHEX</option>
+        </select>
+        <label>Cantidad Total Producto (TM)</label>
+        <input type="number" id="buque-tm" min="0">
+        <label>Inicio Operaciones</label>
+        <input type="datetime-local" id="inicio-op">
+        <label>Fin Operaciones</label>
+        <input type="datetime-local" id="fin-op">
+        <div class="summary-row"><b>Laytime Disponible:</b> <span id="laytime"></span></div>
+        <div class="summary-row"><b>Tiempo en Operación:</b> <span id="tiempo-operacion"></span></div>
+      </section>
+
+      <!-- Productos Manifestados -->
+      <section class="card">
+        <div class="card-title">Productos Manifestados</div>
+        <div class="divider"></div>
+        <table id="tabla-productos">
+          <thead>
+            <tr>
+              <th>Producto</th><th>Bodega</th><th>Declarado (TM)</th><th>Descargado (TM)</th><th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-productos"></tbody>
+        </table>
+        <button onclick="agregarProducto()">Agregar Producto</button>
+      </section>
+    </div>
+
+    <div class="cards-row">
+      <!-- Registro de Paradas -->
+      <section class="card">
+        <div class="card-title">Registro de Paradas / Incidentes</div>
+        <div class="divider"></div>
+        <form onsubmit="registrarParada(event)">
+          <div class="flex-row">
+            <div class="flex-both">
+              <label>Motivo</label>
+              <input required id="parada-motivo">
+            </div>
+            <div class="flex-both">
+              <label>Inicio (fecha-hora)</label>
+              <input required type="datetime-local" id="parada-inicio">
+            </div>
+            <div class="flex-both">
+              <label>Fin (fecha-hora)</label>
+              <input required type="datetime-local" id="parada-fin">
+            </div>
+            <div style="align-self: flex-end;">
+              <button type="submit">Registrar</button>
+            </div>
+          </div>
+        </form>
+        <table id="tabla-paradas">
+          <thead>
+            <tr>
+              <th>Motivo</th><th>Inicio</th><th>Fin</th><th>Duración</th><th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-paradas"></tbody>
+        </table>
+        <div class="summary"><b>Tiempo Total Paradas:</b> <span id="tiempo-paradas"></span></div>
+      </section>
+
+      <!-- Tracking de Camiones -->
+      <section class="card">
+        <div class="card-title">Tracking de Camiones</div>
+        <div class="divider"></div>
+        <form onsubmit="registrarCamion(event)">
+          <div class="flex-row">
+            <div class="flex-both">
+              <label>Placa</label>
+              <input required id="camion-placa">
+            </div>
+            <div class="flex-both">
+              <label>Ficha</label>
+              <input required id="camion-ficha">
+            </div>
+            <div class="flex-both">
+              <label>Estatus</label>
+              <select id="camion-estatus">
+                <option value="Cargado">Cargado</option>
+                <option value="No Cargado">No cargado</option>
+              </select>
+            </div>
+            <div style="align-self: flex-end;">
+              <button type="submit">Registrar</button>
+            </div>
+          </div>
+        </form>
+        <div>
+          <label>Filtrar por Estatus</label>
+          <select onchange="filtrarCamiones()" id="filtro-estatus">
+            <option value="Todos">Todos</option>
+            <option value="Cargado">Cargado</option>
+            <option value="No Cargado">No cargado</option>
+          </select>
+        </div>
+        <table id="tabla-camiones">
+          <thead>
+            <tr>
+              <th>Placa</th><th>Ficha</th><th>Estatus</th><th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-camiones"></tbody>
+        </table>
+        <div class="summary">
+          <b>Camiones registrados:</b> <span id="camion-total"></span> |
+          <b>Camiones por hora:</b> <span id="camion-xhora"></span>
+        </div>
+      </section>
+    </div>
+
+    <div class="cards-row">
+      <!-- Correa Mecanizada -->
+      <section class="card">
+        <div class="card-title">Correa Mecanizada</div>
+        <div class="divider"></div>
+        <form onsubmit="registrarCorrea(event)">
+          <div class="flex-row">
+            <div class="flex-both">
+              <label>Línea</label>
+              <select id="correa-linea">
+                <option value="1">Línea 1</option>
+                <option value="2">Línea 2</option>
+              </select>
+            </div>
+            <div class="flex-both">
+              <label>Producto</label>
+              <input required id="correa-producto">
+            </div>
+            <div class="flex-both">
+              <label>Toneladas</label>
+              <input required type="number" id="correa-tn" min="1">
+            </div>
+            <div class="flex-both">
+              <label>Hora</label>
+              <input required type="datetime-local" id="correa-hora">
+            </div>
+            <div style="align-self: flex-end;">
+              <button type="submit">Registrar</button>
+            </div>
+          </div>
+        </form>
+        <table id="tabla-correa">
+          <thead>
+            <tr>
+              <th>Línea</th><th>Producto</th><th>Toneladas</th><th>Hora</th><th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-correa"></tbody>
+        </table>
+        <div class="summary">
+          <b>Total Descargado por Correa:</b> <span id="total-correa"></span> TM
+        </div>
+      </section>
+
+      <!-- Total Descargado + Dashboard -->
+      <section class="card">
+        <div class="card-title">Dashboard Resumen & Totales</div>
+        <div class="divider"></div>
+        <div class="dashboard-row">
+          <div class="dashboard-card">
+            <div class="dashboard-title">Total descargado camión</div>
+            <div id="dsh-tot-camion" style="font-size:1.6em"></div>
+          </div>
+          <div class="dashboard-card">
+            <div class="dashboard-title">Total correa</div>
+            <div id="dsh-tot-correa" style="font-size:1.6em"></div>
+          </div>
+          <div class="dashboard-card">
+            <div class="dashboard-title">Total neto descargado</div>
+            <div id="dsh-tot-total" style="font-size:1.6em"></div>
+          </div>
+        </div>
+        <div class="dashboard-row">
+          <div class="dashboard-card">
+            <b>Tiempo Bruto Operación:</b> <span id="dsh-tiempo-bruto"></span>
+          </div>
+          <div class="dashboard-card">
+            <b>Tiempo Neto Operación:</b> <span id="dsh-tiempo-neto"></span>
+          </div>
+          <div class="dashboard-card">
+            <b>TPH Promedio (bruto/neto):</b> <span id="dsh-tph"></span>
+          </div>
+          <div class="dashboard-card">
+            <b>Tiempo Hábil Restante:</b> <span id="dsh-laytime-rest"></span>
+          </div>
+        </div>
+        <div class="dashboard-graph-container">
+          <div style="font-weight:600;margin-bottom:0.5em;">Gráfica de descarga por hora</div>
+          <canvas id="grafico-horas" height="110"></canvas>
+        </div>
+      </section>
+    </div>
+  </main>
+  <script>
+  // Lógica JS igual a la plantilla anterior - modularizada
+  let productos = [], paradas=[], camiones=[], correa=[];
+  let laytimeHoras = 0;
+
+  function calcLaytime() {
+    const tm=parseFloat(document.getElementById('buque-tm').value);
+    const rata=parseFloat(document.getElementById('buque-rata').value);
+    const condicion=document.getElementById('buque-condicion').value;
+    if (tm>0 && rata>0) {
+      let dias = tm/rata;
+      if (condicion==='SHEX') dias *= (7/5);
+      laytimeHoras = Math.round(dias*24);
+      document.getElementById('laytime').innerText = laytimeHoras + " horas";
+    } else {
+      document.getElementById('laytime').innerText = "No definido";
+    }
+  }
+  ['buque-tm','buque-rata','buque-condicion'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',calcLaytime);
+  });
+  function calcOperacion() {
+    const ini=document.getElementById('inicio-op').value;
+    const fin=document.getElementById('fin-op').value;
+    if (!ini) {document.getElementById('tiempo-operacion').innerText="No iniciado";return;}
+    const dtIni = new Date(ini);
+    let dtFin = fin? new Date(fin): new Date();
+    let diff = Math.max((dtFin-dtIni)/3600000,0);
+    document.getElementById('tiempo-operacion').innerText = (diff).toFixed(2) + " h";
+    return diff;
+  }
+  ['inicio-op','fin-op'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',()=>{ calcOperacion();updateDashboard(); });
+  });
+
+  function renderProductos() {
+    const tbody=document.getElementById('tbody-productos'); tbody.innerHTML="";
+    productos.forEach((p,i)=>{
+      tbody.innerHTML+=`<tr>
+        <td><input value="${p.tipo}" oninput="productos[${i}].tipo=this.value"></td>
+        <td><input value="${p.bodega}" oninput="productos[${i}].bodega=this.value"></td>
+        <td><input type='number' min='0' style='width:70px' value='${p.declarado}' onchange='actProdDeclarado(${i}, this.value)'></td>
+        <td><input type='number' min='0' style='width:70px' value='${p.descargado}' onchange='actProdDescargado(${i}, this.value)'></td>
+        <td><button onclick="eliminaProducto(${i})">Eliminar</button></td>
+      </tr>`;
+    });
+  }
+  function actProdDeclarado(idx,vl){ productos[idx].declarado=Number(vl); renderProductos(); updateDashboard();}
+  function actProdDescargado(idx,vl){ productos[idx].descargado=Number(vl); renderProductos(); updateDashboard();}
+  function agregarProducto() {
+    productos.push({tipo:"",bodega:"",declarado:0,descargado:0});
+    renderProductos();
+  }
+  function eliminaProducto(idx){
+    productos.splice(idx,1);
+    renderProductos();
+    updateDashboard();
+  }
+  document.addEventListener('DOMContentLoaded',()=>{ renderProductos(); });
+
+  function registrarParada(e) {
+    e.preventDefault();
+    let motivo=document.getElementById('parada-motivo').value,
+        ini=document.getElementById('parada-inicio').value,
+        fin=document.getElementById('parada-fin').value;
+    paradas.push({motivo,ini,fin});
+    renderParadas();
+    updateDashboard();
+  }
+  function renderParadas() {
+    const tbody=document.getElementById('tbody-paradas'); tbody.innerHTML="";
+    paradas.forEach((p,i)=>{
+      let duration="", diff=0;
+      if (p.ini && p.fin) {
+        const d1=new Date(p.ini), d2=new Date(p.fin);
+        diff=(d2-d1)/3600000;
+        duration=`${Math.floor(diff)}h ${Math.round((diff%1)*60)}m`;
+      }
+      tbody.innerHTML+=`<tr>
+        <td>${p.motivo}</td>
+        <td>${p.ini.replace("T", " ")}</td>
+        <td>${p.fin.replace("T", " ")}</td>
+        <td>${duration}</td>
+        <td><button onclick="eliminaParada(${i})">Eliminar</button></td>
+      </tr>`;
+    });
+    let total=0;
+    paradas.forEach(p=>{
+      if (p.ini&&p.fin) total+=((new Date(p.fin))-(new Date(p.ini)))/3600000;
+    });
+    document.getElementById('tiempo-paradas').innerText=total.toFixed(2)+' h';
+  }
+  function eliminaParada(idx){paradas.splice(idx,1);renderParadas();updateDashboard();}
+
+  function registrarCamion(e){
+    e.preventDefault();
+    let placa=document.getElementById('camion-placa').value,
+        ficha=document.getElementById('camion-ficha').value,
+        estatus=document.getElementById('camion-estatus').value;
+    camiones.push({placa,ficha,estatus});
+    renderCamiones();
+  }
+  function renderCamiones(){
+    const tbody=document.getElementById('tbody-camiones'); tbody.innerHTML="";
+    let filtro=document.getElementById('filtro-estatus').value;
+    let visibles=camiones.filter(c=>
+      filtro==="Todos"? true : c.estatus===filtro);
+    visibles.forEach((c,i)=>{
+      tbody.innerHTML+=`<tr>
+        <td>${c.placa}</td>
+        <td>${c.ficha}</td>
+        <td>
+          <span class="status-badge ${c.estatus==='Cargado'?'cargado':'no-cargado'}">${c.estatus}</span>
+        </td>
+        <td><button onclick="eliminaCamion(${i})">Eliminar</button></td>
+      </tr>`;
+    });
+    document.getElementById('camion-total').innerText=camiones.length;
+    document.getElementById('camion-xhora').innerText = Math.round(camiones.length / (Math.max(calcOperacion()||1,1)/24)).toFixed(1);
+  }
+  function eliminaCamion(idx){ camiones.splice(idx,1);renderCamiones();}
+  function filtrarCamiones(){renderCamiones();}
+
+  function registrarCorrea(e){
+    e.preventDefault();
+    let linea=document.getElementById('correa-linea').value,
+        prod=document.getElementById('correa-producto').value,
+        tn=document.getElementById('correa-tn').value,
+        hora=document.getElementById('correa-hora').value;
+    correa.push({linea,prod,tn:Number(tn),hora});
+    renderCorrea();
+    updateDashboard();
+  }
+  function renderCorrea(){
+    const tbody=document.getElementById('tbody-correa'); tbody.innerHTML="";
+    correa.forEach((c,i)=>{
+      tbody.innerHTML+=`<tr>
+        <td>${c.linea}</td><td>${c.prod}</td><td>${c.tn}</td><td>${c.hora.replace("T"," ")}</td>
+        <td><button onclick="eliminaCorrea(${i})">Eliminar</button></td>
+      </tr>`;
+    });
+    let total = correa.reduce((acc,c)=>acc+c.tn,0);
+    document.getElementById('total-correa').innerText=total.toFixed(2);
+  }
+  function eliminaCorrea(idx){ correa.splice(idx,1);renderCorrea();updateDashboard();}
+
+  function updateDashboard(){
+    let bruto=calcOperacion()||0;
+    let tiempoParadas=0; paradas.forEach(p=> {
+      if (p.ini&&p.fin) tiempoParadas+=((new Date(p.fin))-(new Date(p.ini)))/3600000;
+    });
+    let neto = Math.max(bruto-tiempoParadas,0);
+    let tot = productos.reduce((a,p)=>a+p.descargado,0) + correa.reduce((a,c)=>a+c.tn,0);
+    let tphBruto = bruto > 0 ? (tot/bruto) : 0;
+    let
+    let tphNeto  = neto  > 0 ? (tot/neto)  : 0;
+    let disponible = laytimeHoras-(bruto||0);
+    // Totales dashboard
+    document.getElementById('dsh-tiempo-bruto').innerText=bruto.toFixed(2) + " h";
+    document.getElementById('dsh-tiempo-neto').innerText=neto.toFixed(2) + " h";
+    document.getElementById('dsh-tph').innerText=`${tphBruto.toFixed(1)} / ${tphNeto.toFixed(1)} TM/h`;
+    document.getElementById('dsh-laytime-rest').innerText = (disponible>0?disponible.toFixed(2):'0')+' horas';
+    // Totales descargados
+    let totalCamion = productos.reduce((a,p)=>a+p.descargado,0);
+    let totalCorrea = correa.reduce((a,c)=>a+c.tn,0);
+    let totalNeto = totalCamion+totalCorrea;
+    document.getElementById('dsh-tot-camion').innerText = totalCamion.toFixed(2)+" TM";
+    document.getElementById('dsh-tot-correa').innerText = totalCorrea.toFixed(2)+" TM";
+    document.getElementById('dsh-tot-total').innerText = totalNeto.toFixed(2)+" TM";
+    // Update gráfica
+    updateGrafico();
+  }
+  setInterval(updateDashboard,31000); // Actualizado cada 31 segs para uso real
+  document.addEventListener('DOMContentLoaded',()=>{ updateDashboard(); renderParadas(); renderCamiones(); renderCorrea(); });
+
+  function updateGrafico(){
+    let ctx=document.getElementById('grafico-horas').getContext('2d');
+    ctx.clearRect(0,0,600,110);
+    let horas = {};
+    correa.forEach(c=>{
+      let h=(c.hora||"").split("T")[1]? (c.hora.split("T")[1].substr(0,5)):"";
+      if (!horas[h]) horas[h]=0;
+      horas[h]+=c.tn;
+    });
+    let labels=Object.keys(horas);
+    let vals=labels.map(l=>horas[l]);
+    let maxV = Math.max(...vals,1);
+    let W=ctx.canvas.width, H=ctx.canvas.height;
+    let step = labels.length>1? W/(labels.length-1): W;
+    ctx.beginPath();
+    ctx.strokeStyle="#1a2341"; ctx.lineWidth=2.2;
+    labels.forEach((h,i)=>{
+      let x = i*step, y = H-(vals[i]/maxV*0.8*H)-19;
+      if(i==0) ctx.moveTo(x,y);
+      else ctx.lineTo(x,y);
+      ctx.arc(x, y, 2.3, 0, 2*Math.PI);
+    }); ctx.stroke();
+    ctx.fillStyle="#46381a";
+    labels.forEach((h,i)=> ctx.fillText(h, i*step, H-2));
+    ctx.fillStyle="#bda25f88";
+    labels.forEach((h,i)=> ctx.fillRect(i*step-3, H-(vals[i]/maxV*0.8*H)-10,6,8));
+  }
+  </script>
+</body>
+</html>
