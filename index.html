@@ -1217,6 +1217,9 @@
     </div>
   </div>
 </div>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
 <script>
 let currentUsername = '';
@@ -1433,36 +1436,50 @@ document.getElementById('selector-buque').addEventListener('change', function() 
   cambiarBuqueActivo(this.value);
 });
 
-function guardarDatos() {
+async function guardarDatos() {
   sincronizarBuqueActivoDesdePantalla();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(sistemaBuques));
+  if (!firebaseListo || !dbFirebase || !sistemaBuques.activo || !sistemaBuques.buques[sistemaBuques.activo]) return;
+  const buque = sistemaBuques.buques[sistemaBuques.activo];
+  await dbFirebase.collection('buques').doc(sistemaBuques.activo).set({
+    ...buque,
+    actualizadoEn: new Date().toISOString()
+  });
 }
 
 function cargarDatosGuardados() {
-  const datosGuardados = localStorage.getItem(STORAGE_KEY);
+  if (!firebaseListo || !dbFirebase) return;
 
-  if (datosGuardados) {
-    try {
-      const datos = JSON.parse(datosGuardados);
-      if (datos && datos.buques && Object.keys(datos.buques).length) {
-        sistemaBuques = {
-          activo: datos.activo || Object.keys(datos.buques)[0],
-          contador: datos.contador || Object.keys(datos.buques).length,
-          buques: datos.buques
-        };
-      }
-    } catch (error) {
-      console.error('Error cargando datos guardados:', error);
+  dbFirebase.collection('buques').onSnapshot((snap) => {
+    const buques = {};
+    let activo = null;
+    let contador = 0;
+
+    snap.forEach(doc => {
+      buques[doc.id] = doc.data();
+      contador++;
+      if (!activo) activo = doc.id;
+    });
+
+    if (contador > 0) {
+      sistemaBuques = {
+        activo,
+        contador,
+        buques
+      };
+      cargarBuqueActivoEnPantalla();
+      actualizarSelectorBuques();
+      updateDashboard();
+    } else {
+      sistemaBuques = {
+        activo: null,
+        contador: 0,
+        buques: {}
+      };
+      crearNuevoBuque();
     }
-  }
-
-  if (!sistemaBuques.activo || !sistemaBuques.buques[sistemaBuques.activo]) {
-    sistemaBuques = { activo: null, contador: 0, buques: {} };
-    crearNuevoBuque();
-    return;
-  }
-
-  cargarBuqueActivoEnPantalla();
+  }, (error) => {
+    console.error('Error cargando datos de Firebase', error);
+  });
 }
 
 function getProductoSeleccionadoDashboard() {
@@ -2655,6 +2672,7 @@ function importarDescargadoPorBuque() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  iniciarFirebase();
   document.getElementById('selector-buque').innerHTML = '';
   renderProductos();
   renderParadas();
@@ -2671,6 +2689,22 @@ setInterval(() => {
   updateDashboard();
   guardarDatos();
 }, 30000);
+const firebaseConfig = {
+  // pega aquí tu configuración de Firebase
+};
+
+let appFirebase = null;
+let authFirebase = null;
+let dbFirebase = null;
+let firebaseListo = false;
+
+function iniciarFirebase() {
+  if (firebaseListo || typeof firebase === 'undefined') return;
+  appFirebase = firebase.initializeApp(firebaseConfig);
+  authFirebase = firebase.auth();
+  dbFirebase = firebase.firestore();
+  firebaseListo = true;
+}
 </script>
 </body>
 </html>
